@@ -1,0 +1,56 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>  // Instale a biblioteca ArduinoJson
+
+const char* ssid     = "brisa-3117879";
+const char* password = "9urubuco";
+
+WebServer server(80);
+
+// Simulando alguns dados de exemplo
+float sensorValues[] = {2.3, 2.8, 3.1, 2.9, 3.0};
+String labels[] = {"10:00", "10:10", "10:20", "10:30", "10:40"};
+const int numPoints = 5;
+
+void handleRoot() {
+  StaticJsonDocument<1024> jsonDoc;
+  JsonArray dataArray = jsonDoc.to<JsonArray>();
+
+  for (int i = 0; i < numPoints; i++) {
+    JsonObject point = dataArray.createNestedObject();
+    point["label"] = labels[i];
+    point["value"] = sensorValues[i];
+  }
+
+  String response;
+  serializeJson(dataArray, response);
+
+  server.send(200, "application/json", response);
+  Serial.println("JSON enviado ao app:");
+  Serial.println(response);
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  Serial.println("Conectando ao Wi-Fi...");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nConectado!");
+  Serial.print("Endereço IP: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", handleRoot);
+  server.begin();
+  Serial.println("Servidor HTTP iniciado");
+}
+
+void loop() {
+  server.handleClient();
+}
