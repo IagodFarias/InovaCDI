@@ -59,5 +59,15 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m2)
     implementation(libs.vico.compose.m3)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("com.patrykandpatrick.vico:compose-m2:2.1.2")
+    implementation("com.patrykandpatrick.vico:compose-m3:2.1.2")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+
+
+
 
 }
