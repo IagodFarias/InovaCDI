@@ -9,6 +9,7 @@ import com.example.nova_cdi.ui.theme.Nova_cdiTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
 import com.example.nova_cdi.login.*
 
 
@@ -20,13 +21,8 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-
-
             Nova_cdiTheme {
-                NavHost(navController = navController, startDestination = "Acesso") {
-                    composable("Acesso") { TelaAcesso(navController) }
-                    composable("Cadastro") { TelaCadastro(navController) }
-                }
+                NavHost(navController = navController, graph = NavigationGraph(navController))
             }
 
         }
