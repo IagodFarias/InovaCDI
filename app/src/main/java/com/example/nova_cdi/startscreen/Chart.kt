@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -27,7 +28,7 @@ import androidx.navigation.compose.rememberNavController
 
 
 @Composable
-fun TelaComGrafico(navController: NavHostController) {
+fun TelaComGrafico(navController: NavController) {
     val modelProducer = remember { CartesianChartModelProducer() }
     val dataPoints = remember { mutableStateListOf<Float>() }
 
