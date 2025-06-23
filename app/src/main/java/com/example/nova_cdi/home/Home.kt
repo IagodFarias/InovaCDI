@@ -136,7 +136,7 @@ fun TelaHome(navController: NavController) {
 
             Button(
                 onClick = {
-                    navController.navigate("Gráficos")
+                    navController.navigate("Graficos")
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DarkBlue,
