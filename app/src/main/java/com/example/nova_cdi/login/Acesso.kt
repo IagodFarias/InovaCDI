@@ -105,7 +105,7 @@ fun TelaAcesso(navController: NavController){
             Column {
                 TopAppBar(
                     navigationIcon = {
-                        IconButton(onClick = { //TODO: FUNÇÃO DE VOLTAR E MELHORAR IMAGEM
+                        IconButton(onClick = { //TODO: MELHORAR IMAGEM
                             navController.popBackStack()
                         }) {
                             Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Menu")

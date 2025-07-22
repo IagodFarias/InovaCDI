@@ -5,9 +5,6 @@ import EspaçamentoLaterial
 import FonteGrande
 import FontePadrao
 import TamanhoIcones
-import android.R
-import android.graphics.drawable.Icon
-import android.media.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,54 +21,59 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 
 
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.traceEventStart
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.nova_cdi.login.AcessoTexto
+import com.example.nova_cdi.Graficos.WifiInfo
+import com.example.nova_cdi.R
+import com.example.nova_cdi.navigation.currentRoute
 import com.example.nova_cdi.ui.theme.Blue
 import com.example.nova_cdi.ui.theme.DarkBlue
 import com.example.nova_cdi.ui.theme.Gray
 import com.example.nova_cdi.ui.theme.Green
+import com.example.nova_cdi.ui.theme.NeutralBlue
 import java.text.DecimalFormat
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaHome(navController: NavController) {
+    var wifiHelper  = WifiInfo(LocalContext.current)
+
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -90,10 +92,10 @@ fun TelaHome(navController: NavController) {
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(EspaçamentoLaterial)
-            //.fillMaxSize()
             ,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
 
             Spacer(modifier = Modifier.padding(10.dp))
@@ -107,36 +109,120 @@ fun TelaHome(navController: NavController) {
                     .width(BoxWidhtSize)
                     .height(75.dp)
             ){
-                //TODO COLOCAR OS ICONES
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    Box(){
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                            ,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        )
+                        {
+                            Icon( //TODO: ENCONTRAR ICONE DE PAINES
+                                imageVector = Icons.Default.Home,
+                                tint = Color.Black,
+                                modifier = Modifier
+                                    .width(TamanhoIcones)
+                                    .height(TamanhoIcones),
+                                contentDescription = "Home"
+                            )
+                            Text(
+                                text = "Operando",
+                                fontSize = FonteGrande,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.padding(10.dp))
 
-            InformationBox(
-                informacao = "Nível de água",
-                valor = 10.055F,
-                medida = "%",
-                icone = Icons.Default.Add
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(innerPadding)
+                    .padding(EspaçamentoLaterial)
+                    .verticalScroll(rememberScrollState())
+                ,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
 
 
-            InformationBox(
-                informacao = "Condutividade",
-                valor = 450F,
-                medida = "mS|cm",
-                icone = Icons.Default.Add
-            )
+                InformationBox(
+                    informacao = "Nível de água",
+                    valor = 10.055F,
+                    medida = "%",
+                    icone = R.drawable.water,
+                    Color(0xFF005AA0)
+                )
 
-            InformationBox(
-                informacao = "Nível de água",
-                valor = 7F,
-                medida = "",
-                icone = Icons.Default.Add
-            )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+                InformationBox(
+                    informacao = "Condutividade",
+                    valor = 450F,
+                    medida = "mS|cm",
+                    icone = R.drawable.spark,
+                    Color(0xFFFEC420)
+                )
+
+
+            }
+
+
+
 
             Button(
                 onClick = {
-                    navController.navigate("Graficos")
+                    //navController.navigate("Graficos")
+
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DarkBlue,
@@ -150,7 +236,15 @@ fun TelaHome(navController: NavController) {
                 )
             }
 
+
+
+
+
         }
+
+
+
+
 
     }
 }
@@ -174,8 +268,16 @@ fun BottomBar(navController: NavController){
         ) {
             IconButton(
                 onClick = {
-                    //TODO PESQUISA
+
+                    navController.navigate("Informacoes") {
+                        popUpTo("Informacoes") {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
+
+
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -190,7 +292,14 @@ fun BottomBar(navController: NavController){
 
             IconButton(
                 onClick = {
-                    //TODO HOME
+                    if(navController.currentRoute() != "Home"){
+                        navController.navigate("Home") {
+                            popUpTo("Home") {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
+                        }
+                    }
                 }
             ) {
                 Icon(
@@ -220,12 +329,17 @@ fun BottomBar(navController: NavController){
 
             IconButton(
                 onClick = {
-                    //TODO Assistente vitual
+                    navController.navigate("Chat") {
+                        popUpTo("Chat") {
+                            inclusive = false // mantém "Home" na pilha
+                        }
+                        launchSingleTop = true
+                    }
                 }
             ){
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Assisten vitural",
+                    contentDescription = "Assisten virtual",
                     tint = Color.White,
                     modifier = Modifier
                             .clip(CircleShape)
@@ -257,13 +371,16 @@ fun HomeTopBar(navController: NavController){
             Row(){
                 IconButton(
                     onClick = {
-                        //TODO ABA DE NOTIFICAÇÕES
+                        navController.navigate("Alertas")
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Notificação",
-                        tint = Color.Black
+                        painter = painterResource(id = R.drawable.notifications),
+                        contentDescription = "User",
+                        modifier = Modifier
+                            .width(TamanhoIcones)
+                            .height(TamanhoIcones),
+                        tint = NeutralBlue
                     )
                 }
 
@@ -288,10 +405,11 @@ fun HomeTopBar(navController: NavController){
 
 @Composable
 fun InformationBox(
-    informacao:String,
+    informacao: String,
     valor: Float,
     medida: String,
-    icone: ImageVector
+    icone: Int,
+    color: Color
 ){
     Box(
         modifier = Modifier
@@ -304,7 +422,8 @@ fun InformationBox(
                 color = Color.Black,
                 shape = RoundedCornerShape(10.dp),
                 width = 1.dp
-            ),
+            )
+            .padding(vertical = 15.dp),
     ){
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -313,11 +432,14 @@ fun InformationBox(
         ){
             //IMAGEM
             Icon(
-                imageVector = icone,
-                contentDescription = "Valor",
-                tint = Color.Black,
-                modifier = Modifier.size(14.dp)
+                painter = painterResource(id = icone),
+                contentDescription = "User",
+                modifier = Modifier
+                    .width(50.dp)
+                    .height(50.dp),
+                tint = color
             )
+
 
             //INFORMAÇÃO
             Column() {
