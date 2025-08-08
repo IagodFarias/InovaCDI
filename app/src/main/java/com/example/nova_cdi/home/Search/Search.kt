@@ -5,6 +5,7 @@ import BoxWidhtSize
 import EspaçamentoLaterial
 import FontePadrao
 import TamanhoIcones
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,17 +21,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,11 +72,11 @@ fun TelaInformações(navController: NavController) {
             innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(EspaçamentoLaterial)
-            //.fillMaxSize()
+                //.padding(innerPadding)
+                //.padding(EspaçamentoLaterial)
+            .fillMaxSize()
             ,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            //verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -81,38 +87,38 @@ fun TelaInformações(navController: NavController) {
                     .padding(EspaçamentoLaterial)
                     .verticalScroll(rememberScrollState())
                 ,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
                 InfoItens(
                     navController,
-                    "Teste",
+                    "Meu Perfil",
+                    R.drawable.user
+                )
+
+                InfoItens(
+                    navController,
+                    "Notificações",
                     R.drawable.notifications
                 )
 
                 InfoItens(
                     navController,
-                    "Teste",
-                    R.drawable.notifications
+                    "Segurança",
+                    R.drawable.lock
                 )
 
                 InfoItens(
                     navController,
-                    "Teste",
-                    R.drawable.notifications
+                    "Ajuda",
+                    R.drawable.interrogation
                 )
 
                 InfoItens(
                     navController,
-                    "Teste",
-                    R.drawable.notifications
-                )
-
-                InfoItens(
-                    navController,
-                    "Teste",
-                    R.drawable.notifications
+                    "Sair",
+                    R.drawable.sign_in
                 )
 
             }
@@ -132,7 +138,9 @@ fun InformaçõesTopBar(){
             )
             .width(BoxWidhtSize)
             .height(60.dp)
-    ){}
+    ){
+
+    }
 }
 
 @Composable
@@ -144,7 +152,7 @@ fun InfoItens(
     Row(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
     ){
         Icon(
             painter = painterResource(id = icone),
@@ -153,6 +161,34 @@ fun InfoItens(
                 .width(TamanhoIcones.times(0.7F))
                 .height(TamanhoIcones.times(0.7F)),
             contentDescription = "."
+        )
+
+        Text(
+            text = texto,
+            fontSize = FontePadrao,
+            fontWeight = FontWeight.Bold,
+            color = NeutralBlue
+        )
+    }
+}
+
+@Composable
+fun InfoItens(
+    navController: NavController,
+    texto : String,
+    icone : ImageVector
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ){
+        Icon(
+            imageVector = icone,
+            contentDescription = "oi",
+            tint = Color.Black,
+            modifier = Modifier
+                .clip(CircleShape)
         )
 
         Text(
