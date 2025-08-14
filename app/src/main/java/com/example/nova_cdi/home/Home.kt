@@ -446,12 +446,12 @@ fun InformationBox(
                 Text(
                     text = informacao,
                     fontSize = FontePadrao,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
                 Text(
                     text = medida,
                     fontSize = FontePadrao,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
 
@@ -460,7 +460,7 @@ fun InformationBox(
                 Text(
                     text = DecimalFormat(".##").format(valor),
                     fontSize = FonteGrande,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
 

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
@@ -61,22 +62,22 @@ fun TelaInformações(navController: NavController) {
             .fillMaxSize()
             .padding(WindowInsets.safeDrawing.asPaddingValues()),
 
-        topBar = {
-            InformaçõesTopBar()
-        },
         bottomBar = {
             BottomBar(navController)
+        },
+
+        topBar = {
+            InformaçõesTopBar()
         }
 
     ){
             innerPadding ->
+
+
+
         Column(
             modifier = Modifier
-                //.padding(innerPadding)
-                //.padding(EspaçamentoLaterial)
-            .fillMaxSize()
-            ,
-            //verticalArrangement = Arrangement.spacedBy(12.dp),
+            .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -128,8 +129,18 @@ fun TelaInformações(navController: NavController) {
     }
 }
 
+
+//TODO PRECISA SER AUTOMATIZADO COM UM USUÁRIO
 @Composable
 fun InformaçõesTopBar(){
+    Box(
+        modifier = Modifier
+            .background(
+                color = WhiteLeafGreen
+            )
+            .width(BoxWidhtSize)
+            .height(20.dp)
+    )
     Box(
         modifier = Modifier
             .background(
@@ -139,7 +150,39 @@ fun InformaçõesTopBar(){
             .width(BoxWidhtSize)
             .height(60.dp)
     ){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ){
+            IconButton(
+                onClick = {
 
+                }
+            ){
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Usuário",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+
+            }
+
+            Text(
+                modifier = Modifier
+                    .align(
+                        Alignment.TopCenter
+                    ),
+                text = "@Usuário",
+                fontSize = FontePadrao,
+                fontWeight = FontWeight.Medium,
+                color = NeutralBlue
+            )
+
+
+        }
     }
 }
 
@@ -166,7 +209,7 @@ fun InfoItens(
         Text(
             text = texto,
             fontSize = FontePadrao,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Medium,
             color = NeutralBlue
         )
     }
