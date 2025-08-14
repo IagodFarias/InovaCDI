@@ -52,11 +52,49 @@ import com.example.nova_cdi.ui.theme.DarkBlue
 import com.example.nova_cdi.ui.theme.Gray
 import com.example.nova_cdi.ui.theme.LeafGreen
 import com.example.nova_cdi.ui.theme.NeutralBlue
-
 import com.example.nova_cdi.ui.theme.WhiteLeafGreen
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import com.example.nova_cdi.home.ChatBot.ChatBot
+import kotlinx.coroutines.launch
+import android.util.Log
+
+
+data class Message(val text: String, val isSentByUser: Boolean)
+
 
 @Composable
 fun TelaChat(navController: NavController) {
+
+    //Teste
+    val bot = remember {
+        ChatBot(
+            knowledgeContext = teste
+        )
+    }
+
+    var messages by remember {
+        mutableStateOf(
+            listOf(
+                Message("Olá! Como posso ajudar?", isSentByUser = false)
+            )
+        )
+    }
+    // Texto que o usuário está digitando
+    var textInput by remember { mutableStateOf("") }
+    // Estado para controlar a LazyColumn
+    val lazyListState = rememberLazyListState()
+    // Scope de coroutine para rolar a lista
+    val coroutineScope = rememberCoroutineScope()
+
 
     Scaffold(
         modifier = Modifier
@@ -70,27 +108,129 @@ fun TelaChat(navController: NavController) {
             )
         },
         bottomBar = {
-            BottomBar(navController)
+            Column() {
+                MessageInput(
+                    text = textInput,
+                    onTextChanged = { textInput = it },
+                    onSendClicked = {
+                        if (textInput.isNotBlank()) {
+
+                            val userMessageText = textInput
+                            // Adiciona a mensagem do usuário à lista
+                            messages = messages + Message(userMessageText, isSentByUser = true)
+                            textInput = "" // Limpa o campo
+
+                            // Lança uma coroutine para chamar o bot sem travar a tela
+                            coroutineScope.launch {
+
+                                val botResponse = bot.getResponse(userMessageText)
+                                // Adiciona a resposta do bot à lista
+                                messages = messages + Message(botResponse, isSentByUser = false)
+                            }
+
+                        }
+                    }
+                )
+                BottomBar(navController)
+            }
         }
 
     ){
-            innerPadding ->
-        Column(
+        paddingValues ->
+        LazyColumn(
+            state = lazyListState,
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(EspaçamentoLaterial)
-            //.fillMaxSize()
-            ,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-
-            Spacer(modifier = Modifier.padding(10.dp))
-
-            //TODO: CHAT, PESQUISAR COMO FAZER
-
+            items(messages) { message ->
+                MessageBubble(message = message)
+            }
         }
 
+        LaunchedEffect(messages) {
+            // Rola suavemente para o último item da lista
+            if (messages.isNotEmpty()) {
+                lazyListState.animateScrollToItem(index = messages.size - 1)
+            }
+        }
+
+    }
+}
+
+@Composable
+fun MessageBubble(message: Message) {
+    // Definimos o alinhamento que será usado pelo Column.
+    // Alignment.Start alinha à esquerda, Alignment.End alinha à direita.
+    val alignment = if (message.isSentByUser) Alignment.End else Alignment.Start
+
+    // As cores continuam as mesmas
+    val bubbleColor = if (message.isSentByUser) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.secondaryContainer
+    }
+
+    // 1. Usamos um Column que preenche toda a largura.
+    //    A "mágica" está em definir o `horizontalAlignment` aqui.
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = alignment // <-- A CORREÇÃO PRINCIPAL ESTÁ AQUI
+    ) {
+        // 2. O conteúdo (a bolha do chat) agora é um filho direto do Column
+        //    e será alinhado de acordo com a regra que definimos acima.
+        Box(
+            modifier = Modifier
+                // A bolha continua ocupando no máximo 80% da largura para não ficar colada na borda oposta
+                .fillMaxWidth(0.8f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(bubbleColor)
+                .padding(12.dp)
+        ) {
+            Text(
+                text = message.text,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+
+@Composable
+fun MessageInput(
+    text: String,
+    onTextChanged: (String) -> Unit,
+    onSendClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = onTextChanged,
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Digite algo...") },
+            shape = RoundedCornerShape(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = onSendClicked,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = "Enviar",
+                tint = Color.White
+            )
+        }
     }
 }
 
