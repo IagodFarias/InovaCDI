@@ -1,12 +1,18 @@
-package com.example.nova_cdi.chart
+package com.example.nova_cdi.startscreen
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -22,23 +28,20 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-
 
 @Composable
-fun TelaComGrafico(navController: NavHostController) {
+fun TelaComGrafico(navController: NavHostController, ipAddress: String) {
     val modelProducer = remember { CartesianChartModelProducer() }
     val dataPoints = remember { mutableStateListOf<Float>() }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(ipAddress) {
         val client = OkHttpClient()
         while (true) {
             try {
                 val body = withContext(Dispatchers.IO) {
                     client.newCall(
                         Request.Builder()
-                            .url("http://192.168.0.2/data")
+                            .url("http://$ipAddress/data")
                             .build()
                     ).execute().body?.string()
                 }
@@ -66,10 +69,10 @@ fun TelaComGrafico(navController: NavHostController) {
                 .padding(16.dp)
         ) {
             Button(
-                onClick = { navController.navigate("home") },
+                onClick = { navController.popBackStack() },
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
-                Text("Home")
+                Text("Voltar")
             }
 
             Text(
@@ -95,32 +98,78 @@ fun TelaComGrafico(navController: NavHostController) {
                 )
             }
         }
-
     }
 }
 
-@Preview
 @Composable
-private fun Tela() {
-    val navController = rememberNavController()
-    TelaComGrafico(navController)
+fun InputScreen(onIpEntered: (String) -> Unit) {
+    var ipAddress by remember { mutableStateOf("") }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Informe o endereço IP do servidor:")
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = ipAddress,
+                onValueChange = { ipAddress = it },
+                label = { Text("Endereço IP") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (ipAddress.isNotBlank()) {
+                        onIpEntered(ipAddress)
+                    }
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Continuar")
+            }
+        }
+    }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun inputsreempreview() {
+    InputScreen(onIpEntered = { /* no-op for preview */ })
+}
 
+@Composable
+fun AppNavGraph() {
+    val navController = rememberNavController()
+    var ipAddress by rememberSaveable { mutableStateOf<String?>(null) }
 
-//Melhorias que você pode fazer:
-//Receber o IP/dominio via parâmetro para não deixar fixo no código.
-//
-//Criar uma variável ou val para o endereço, facilitando alteração.
-//
-//Criar uma tela para o usuário informar o IP e usar essa info na requisição.
-//
-//Tratar erros quando o IP estiver errado ou o servidor não responder.
+    NavHost(
+        navController = navController,
+        startDestination = if (ipAddress == null) "input" else "grafico"
+    ) {
+        composable("input") {
+            InputScreen(onIpEntered = { ip ->
+                ipAddress = ip
+                navController.navigate("grafico") {
+                    popUpTo("input") { inclusive = true }
+                }
+            })
+        }
+        composable("grafico") {
+            ipAddress?.let {
+                TelaComGrafico(navController, it)
+            }
+        }
+    }
+}
 
-
-
-
-
-
-
-
+@Preview(showBackground = true)
+@Composable
+fun TelaComGraficoPreview() {
+    val navController = rememberNavController()
+    TelaComGrafico(navController = navController, ipAddress = "192.168.0.1")
+}
