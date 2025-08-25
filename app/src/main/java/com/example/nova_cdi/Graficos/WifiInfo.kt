@@ -5,13 +5,23 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.net.wifi.WifiManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Dispatcher
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okio.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
 
-class WifiInfo (private val context: Context){
-    var IP : String = ""
+object WifiInfo{
 
-    private fun setIP(){
+    var IP : String? = null
+            private set
+
+    private fun setIP(context : Context){
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val ipInt = wifiManager.connectionInfo.ipAddress
 
@@ -37,39 +47,72 @@ class WifiInfo (private val context: Context){
     }
 
     fun getServerIp() : String?{
-        var serverIpParts = this.IP.split(".").toMutableList()
+        var serverIpParts = this.IP?.split(".")?.toMutableList()
 
-        serverIpParts[3] = "200"
+        serverIpParts?.set(3, "200")
 
-        var serverIP = serverIpParts.joinToString(".")
+        var serverIP = serverIpParts?.joinToString(".")
 
 
         return serverIP
     }
 
-    fun isConnectedWifi(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    fun isConnectedToWifi(context: Context): Boolean {
+        val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        val isWifi = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork ?: return false
-            val actNw = connectivityManager.getNetworkCapabilities(network) ?: return false
-            val isWifi = actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-
-            if(isWifi) this.setIP()
-
-            return actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        if (isWifi) {
+            setIP(context)
         } else {
-            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
-            val isWifi = networkInfo.type == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected
-
-            if (isWifi) this.setIP()
-
-            return isWifi
+            IP = null
         }
 
+        return isWifi
+    }
+}
+
+
+object httpsClient{
+    val client = OkHttpClient()
+
+    fun getUrl(all : Boolean = false) : String{
+        var url : String
+
+
+        url = "http://${WifiInfo.getServerIp()}/data"
+
+        if(!all) url = "$url/last"
+
+
+
+        return url
     }
 
 
+    suspend fun GET(url: String): Result<String> {
 
+        return withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url(url)
+                .build()
+
+            try{
+                val call = client.newCall(request).execute()
+
+                call.use {
+                    if(call.isSuccessful){
+                        Result.success(it.body?.string() ?: "")
+                    }else{
+                        Result.failure(IOException("Erro na requisição: ${it.code}"))
+                    }
+                }
+
+            } catch(e: IOException){
+                Result.failure(e)
+            }
+        }
+    }
 }

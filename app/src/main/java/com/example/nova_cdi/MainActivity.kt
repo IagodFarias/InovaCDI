@@ -3,10 +3,12 @@ package com.example.nova_cdi
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import com.example.nova_cdi.ui.theme.Nova_cdiTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.example.nova_cdi.Graficos.WifiInfo
 import com.example.nova_cdi.navigation.NavigationGraph
 
 
@@ -17,7 +19,6 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-
             val navController = rememberNavController()
 
             Nova_cdiTheme {

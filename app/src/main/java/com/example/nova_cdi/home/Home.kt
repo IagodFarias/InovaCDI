@@ -71,7 +71,7 @@ import java.text.DecimalFormat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaHome(navController: NavController) {
-    var wifiHelper  = WifiInfo(LocalContext.current)
+    val context = LocalContext.current
 
 
     Scaffold(
@@ -220,9 +220,9 @@ fun TelaHome(navController: NavController) {
 
             Button(
                 onClick = {
-                    //navController.navigate("Graficos")
-
-
+                    if(WifiInfo.isConnectedToWifi(context)){
+                        navController.navigate("Graficos")
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DarkBlue,
@@ -238,12 +238,7 @@ fun TelaHome(navController: NavController) {
 
 
 
-
-
         }
-
-
-
 
 
     }
@@ -472,6 +467,7 @@ fun InformationBox(
 @Composable
 private fun PreviewHome() {
     val navController = rememberNavController()
+
 
     TelaHome(navController)
 }
