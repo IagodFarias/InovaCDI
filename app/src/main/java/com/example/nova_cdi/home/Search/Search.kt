@@ -1,0 +1,253 @@
+package com.example.nova_cdi.home.Search
+
+
+import BoxWidhtSize
+import EspaçamentoLaterial
+import FontePadrao
+import TamanhoIcones
+import android.graphics.drawable.Icon
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.nova_cdi.R
+import com.example.nova_cdi.home.BottomBar
+import com.example.nova_cdi.home.Chat.GenericTopBar
+import com.example.nova_cdi.home.Chat.TelaChat
+import com.example.nova_cdi.ui.theme.Blue
+import com.example.nova_cdi.ui.theme.LeafGreen
+import com.example.nova_cdi.ui.theme.NeutralBlue
+import com.example.nova_cdi.ui.theme.WhiteLeafGreen
+
+
+@Composable
+fun TelaInformações(navController: NavController) {
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(WindowInsets.safeDrawing.asPaddingValues()),
+
+        bottomBar = {
+            BottomBar(navController)
+        },
+
+        topBar = {
+            InformaçõesTopBar()
+        }
+
+    ){
+            innerPadding ->
+
+
+
+        Column(
+            modifier = Modifier
+            .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(innerPadding)
+                    .padding(EspaçamentoLaterial)
+                    .verticalScroll(rememberScrollState())
+                ,
+                verticalArrangement = Arrangement.spacedBy(30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+
+                InfoItens(
+                    navController,
+                    "Meu Perfil",
+                    R.drawable.user
+                )
+
+                InfoItens(
+                    navController,
+                    "Notificações",
+                    R.drawable.notifications
+                )
+
+                InfoItens(
+                    navController,
+                    "Segurança",
+                    R.drawable.lock
+                )
+
+                InfoItens(
+                    navController,
+                    "Ajuda",
+                    R.drawable.interrogation
+                )
+
+                InfoItens(
+                    navController,
+                    "Sair",
+                    R.drawable.sign_in
+                )
+
+            }
+
+        }
+
+    }
+}
+
+
+//TODO PRECISA SER AUTOMATIZADO COM UM USUÁRIO
+@Composable
+fun InformaçõesTopBar(){
+    Box(
+        modifier = Modifier
+            .background(
+                color = WhiteLeafGreen
+            )
+            .width(BoxWidhtSize)
+            .height(20.dp)
+    )
+    Box(
+        modifier = Modifier
+            .background(
+                color = WhiteLeafGreen,
+                shape = RoundedCornerShape(15.dp)
+            )
+            .width(BoxWidhtSize)
+            .height(60.dp)
+    ){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ){
+            IconButton(
+                onClick = {
+
+                }
+            ){
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Usuário",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+
+            }
+
+            Text(
+                modifier = Modifier
+                    .align(
+                        Alignment.TopCenter
+                    ),
+                text = "@Usuário",
+                fontSize = FontePadrao,
+                fontWeight = FontWeight.Medium,
+                color = NeutralBlue
+            )
+
+
+        }
+    }
+}
+
+@Composable
+fun InfoItens(
+    navController: NavController,
+    texto : String,
+    icone : Int
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
+    ){
+        Icon(
+            painter = painterResource(id = icone),
+            tint = NeutralBlue,
+            modifier = Modifier
+                .width(TamanhoIcones.times(0.7F))
+                .height(TamanhoIcones.times(0.7F)),
+            contentDescription = "."
+        )
+
+        Text(
+            text = texto,
+            fontSize = FontePadrao,
+            fontWeight = FontWeight.Medium,
+            color = NeutralBlue
+        )
+    }
+}
+
+@Composable
+fun InfoItens(
+    navController: NavController,
+    texto : String,
+    icone : ImageVector
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ){
+        Icon(
+            imageVector = icone,
+            contentDescription = "oi",
+            tint = Color.Black,
+            modifier = Modifier
+                .clip(CircleShape)
+        )
+
+        Text(
+            text = texto,
+            fontSize = FontePadrao,
+            fontWeight = FontWeight.Bold,
+            color = NeutralBlue
+        )
+    }
+}
+
+
+@Preview(name = "Alerta")
+@Composable
+private fun PreviewInformaões() {
+    val navController = rememberNavController()
+
+    TelaInformações(navController)
+}
