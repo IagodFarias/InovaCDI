@@ -176,8 +176,8 @@ fun TelaAcesso(navController: NavController){
 
 @Composable
 fun FlowButtons(navController: NavController){
-    val ButtonWidth = 170.dp
-    val ButtonHeight = 50.dp
+    val ButtonWidth = remember {170.dp}
+    val ButtonHeight = remember {50.dp}
 
     Row(
         modifier = Modifier.fillMaxWidth(),

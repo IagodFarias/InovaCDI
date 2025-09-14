@@ -5,8 +5,10 @@ import EspaçamentoLaterial
 import FonteGrande
 import FontePadrao
 import TamanhoIcones
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +45,10 @@ import androidx.compose.material3.Scaffold
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +63,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.nova_cdi.Graficos.Data
+import com.example.nova_cdi.Graficos.DataAll
+import com.example.nova_cdi.Graficos.Mqtt
+import com.example.nova_cdi.Graficos.Sample
 import com.example.nova_cdi.Graficos.WifiInfo
+import com.example.nova_cdi.Graficos.dataTypes
+import com.example.nova_cdi.Graficos.handleSample
 import com.example.nova_cdi.R
 import com.example.nova_cdi.navigation.currentRoute
 import com.example.nova_cdi.ui.theme.Blue
@@ -65,13 +77,56 @@ import com.example.nova_cdi.ui.theme.DarkBlue
 import com.example.nova_cdi.ui.theme.Gray
 import com.example.nova_cdi.ui.theme.Green
 import com.example.nova_cdi.ui.theme.NeutralBlue
+import com.google.gson.Gson
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import kotlinx.coroutines.delay
 import java.text.DecimalFormat
+import kotlin.collections.plus
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaHome(navController: NavController) {
     val context = LocalContext.current
+    val client = remember { Mqtt(true) }
+    val stats = remember{mutableStateOf("Procurando Rede...")}
+
+
+    //Checando se está operando (Nota: Checar pela internet, checar pela conexão
+    LaunchedEffect(Unit) {
+        while(true){
+            if(WifiInfo.isConnectedToWifi(context)) stats.value = "Operando"
+            else stats.value = "Procurando Rede..."
+            delay(1000)
+        }
+    }
+
+    val actualData = remember { mutableStateOf(DataAll(
+        x = 0.0F,
+        condutividade = -1F,
+        corrente = -1F,
+        tensao = -1F,
+        consumo = -1F
+    )) }
+
+
+    DisposableEffect(Unit) {
+        client.get_last ({ publish ->
+            val gson = Gson()
+
+            val info = gson.fromJson(String(publish.payloadAsBytes), Sample::class.java)
+            val newData = handleSample(info)
+
+            if(newData != null){
+                actualData.value = newData
+            }
+
+        })
+
+        onDispose {
+            client.disconnect()
+        }
+    }
 
 
     Scaffold(
@@ -133,7 +188,7 @@ fun TelaHome(navController: NavController) {
                                 contentDescription = "Home"
                             )
                             Text(
-                                text = "Operando",
+                                text = stats.value,
                                 fontSize = FonteGrande,
                                 fontWeight = FontWeight.Bold
                             )
@@ -156,86 +211,49 @@ fun TelaHome(navController: NavController) {
 
 
                 InformationBox(
-                    informacao = "Nível de água",
-                    valor = 10.055F,
+                    type = dataTypes.CONSUMO,
+                    informacao = "Consumo",
+                    valor = actualData.value.consumo,
                     medida = "%",
                     icone = R.drawable.water,
-                    Color(0xFF005AA0)
+                    Color(0xFF005AA0),
+                    navController
                 )
 
 
                 InformationBox(
-                    informacao = "Condutividade",
-                    valor = 450F,
+                    type = dataTypes.CORRENTE,
+                    informacao = "Corrente",
+                    valor = actualData.value.corrente,
                     medida = "mS|cm",
                     icone = R.drawable.spark,
-                    Color(0xFFFEC420)
+                    Color(0xFFFEC420),
+                    navController
                 )
 
                 InformationBox(
-                    informacao = "Condutividade",
-                    valor = 450F,
+                    type = dataTypes.TENSAO,
+                    informacao = "Tensão",
+                    valor = actualData.value.tensao,
                     medida = "mS|cm",
                     icone = R.drawable.spark,
-                    Color(0xFFFEC420)
+                    Color(0xFFFEC420),
+                    navController
                 )
 
                 InformationBox(
+                    type = dataTypes.CONDUTIVIDADE,
                     informacao = "Condutividade",
-                    valor = 450F,
+                    valor = actualData.value.condutividade,
                     medida = "mS|cm",
                     icone = R.drawable.spark,
-                    Color(0xFFFEC420)
+                    Color(0xFFFEC420),
+                    navController
                 )
 
-                InformationBox(
-                    informacao = "Condutividade",
-                    valor = 450F,
-                    medida = "mS|cm",
-                    icone = R.drawable.spark,
-                    Color(0xFFFEC420)
-                )
-
-                InformationBox(
-                    informacao = "Condutividade",
-                    valor = 450F,
-                    medida = "mS|cm",
-                    icone = R.drawable.spark,
-                    Color(0xFFFEC420)
-                )
-
-                InformationBox(
-                    informacao = "Condutividade",
-                    valor = 450F,
-                    medida = "mS|cm",
-                    icone = R.drawable.spark,
-                    Color(0xFFFEC420)
-                )
 
 
             }
-
-
-
-
-            Button(
-                onClick = {
-                    if(WifiInfo.isConnectedToWifi(context)){
-                        navController.navigate("Graficos")
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkBlue,
-                    contentColor = Gray
-                ),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text(
-                    text = "Gráficos",
-                    fontSize = FontePadrao
-                )
-            }
-
 
 
         }
@@ -244,168 +262,53 @@ fun TelaHome(navController: NavController) {
     }
 }
 
-@Composable
-fun BottomBar(navController: NavController){
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background( color = Green)
-            .border(
-                width = 0.1.dp,
-                color = Color.Gray,
-            )
+fun toGraph(navController: NavController, context : Context, type : dataTypes){
 
-    ){
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(
-                onClick = {
-
-                    navController.navigate("Informacoes") {
-                        popUpTo("Informacoes") {
-                            inclusive = false
-                        }
-                        launchSingleTop = true
-                    }
-                }
-
-
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    tint = Color.White,
-                    modifier = Modifier
-                            .width(TamanhoIcones)
-                            .height(TamanhoIcones),
-                    contentDescription = "Pesquisa"
-                )
-            }
-
-
-            IconButton(
-                onClick = {
-                    if(navController.currentRoute() != "Home"){
-                        navController.navigate("Home") {
-                            popUpTo("Home") {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    tint = Color.White,
-                    modifier = Modifier
-                            .width(TamanhoIcones)
-                            .height(TamanhoIcones),
-                    contentDescription = "Home"
-                )
-            }
-
-            IconButton(
-                onClick = {
-                    //TODO (+) - NÃO SEI OQ ISSO DEVERIA SIGNIFICAR :/
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AddCircle,
-                    tint = Color.White,
-                    modifier = Modifier
-                            .width(TamanhoIcones)
-                            .height(TamanhoIcones),
-                    contentDescription = "(+)"
-                )
-            }
-
-            IconButton(
-                onClick = {
-                    navController.navigate("Chat") {
-                        popUpTo("Chat") {
-                            inclusive = false // mantém "Home" na pilha
-                        }
-                        launchSingleTop = true
-                    }
-                }
-            ){
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Assisten virtual",
-                    tint = Color.White,
-                    modifier = Modifier
-                            .clip(CircleShape)
-                            .width(TamanhoIcones)
-                            .height(TamanhoIcones)
-                )
-            }
-
+    //TODO: MELHORAR A LOGICA PARA ENTRAR EM UM GRÁFICO, CHECAR SE ESTÁ CONECTADO A UMA CÉLULA
+    if(WifiInfo.isConnectedToWifi(context)){
+        when(type){
+            dataTypes.CONDUTIVIDADE -> navController.navigate("Grafico_Condutividade")
+            dataTypes.CONSUMO -> navController.navigate("Grafico_Consumo")
+            dataTypes.TENSAO -> navController.navigate("Grafico_Tensao")
+            dataTypes.CORRENTE -> navController.navigate("Grafico_Corrente")
         }
     }
-}
-
-
-@Composable
-fun HomeTopBar(navController: NavController){
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Absolute.SpaceBetween
-    ) {
-        Text(
-            text = "InovaCDI",
-            fontSize = FonteGrande,
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.Bold
-        )
-        Box(){
-            Row(){
-                IconButton(
-                    onClick = {
-                        navController.navigate("Alertas")
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.notifications),
-                        contentDescription = "User",
-                        modifier = Modifier
-                            .width(TamanhoIcones)
-                            .height(TamanhoIcones),
-                        tint = NeutralBlue
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        ///TODO USUÁRIO
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "User",
-                        tint = Color.Black,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                    )
-                }
-            }
-        }
-    }
-
 }
 
 @Composable
 fun InformationBox(
+    type : dataTypes,
+    informacao: String,
+    valor: Int,
+    medida: String,
+    icone: Int,
+    color: Color,
+    navController: NavController
+){
+    InformationBox(
+        type,
+         informacao,
+        valor.toFloat(),
+        medida,
+        icone,
+        color,
+        navController
+    )
+}
+
+@Composable
+fun InformationBox(
+    type : dataTypes,
     informacao: String,
     valor: Float,
     medida: String,
     icone: Int,
-    color: Color
+    color: Color,
+    navController: NavController
 ){
+    val context = LocalContext.current
+
+
     Box(
         modifier = Modifier
             .width(BoxWidhtSize)
@@ -418,7 +321,12 @@ fun InformationBox(
                 shape = RoundedCornerShape(10.dp),
                 width = 1.dp
             )
-            .padding(vertical = 15.dp),
+            .padding(vertical = 15.dp)
+            .clickable{
+                toGraph(navController, context, type)
+            }
+
+
     ){
         Row(
             modifier = Modifier.fillMaxWidth(),

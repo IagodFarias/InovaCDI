@@ -1,10 +1,12 @@
 package com.example.nova_cdi.Graficos
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.net.wifi.WifiManager
+import android.provider.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Call
@@ -13,11 +15,14 @@ import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.IOException
+import org.eclipse.paho.android.service.*
+
 import java.net.InetAddress
 import java.net.UnknownHostException
 
 object WifiInfo{
 
+    //Não precisa mais
     var IP : String? = null
             private set
 
@@ -41,11 +46,13 @@ object WifiInfo{
         this.IP = ipString.toString()
     }
 
+    //Não precisa mais
     fun getIp() : String? {
         if(this.IP != "") return this.IP
         else return null
     }
 
+    //Não precisa mais
     fun getServerIp() : String?{
         var serverIpParts = this.IP?.split(".")?.toMutableList()
 
@@ -57,12 +64,13 @@ object WifiInfo{
         return serverIP
     }
 
+    //Não precisa mais
     fun isConnectedToWifi(context: Context): Boolean {
         val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        val isWifi = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        val isWifi = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 
         if (isWifi) {
             setIP(context)
@@ -73,6 +81,7 @@ object WifiInfo{
         return isWifi
     }
 }
+
 
 
 object httpsClient{
@@ -116,3 +125,4 @@ object httpsClient{
         }
     }
 }
+

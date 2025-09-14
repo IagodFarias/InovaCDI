@@ -55,6 +55,13 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
 }
 
 
@@ -86,7 +93,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation(libs.kotlinx.serialization.json)
     implementation ("com.google.code.gson:gson:2.13.1")
-
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    implementation("com.hivemq:hivemq-mqtt-client:1.3.0")
 
 
 }
